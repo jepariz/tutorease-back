@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model agenda {
+  id       Int    @id @default(autoincrement())
+  aluno_id Int
+  aula_id  Int
+  alunos   alunos @relation(fields: [aluno_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  aulas    aulas  @relation(fields: [aula_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model alunos {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  serie       String
+  etapa       String
+  responsavel String
+  telefone    String
+  email       String
+  disciplina  String
+  frequencia  String
+  agenda      agenda[]
+  aulas       aulas[]
+}
+
+model aulas {
+  id             Int            @id @default(autoincrement())
+  aluno_id       Int
+  horario        DateTime       @db.Timestamp(6)
+  data           DateTime       @db.Date
+  tema           String
+  plano          Int
+  status         String         @default("agendada")
+  obs            String?
+  agenda         agenda[]
+  alunos         alunos         @relation(fields: [aluno_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  planos_de_aula planos_de_aula @relation(fields: [plano], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model planos_de_aula {
+  id          Int     @id @default(autoincrement())
+  tema        String
+  disciplina  String
+  recursos    String
+  conte_do    String  @map("conteúdo")
+  atividades  String
+  avaliacao   String
+  referencias String?
+  aulas       aulas[]
+}
